@@ -1,106 +1,655 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quiz App</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f9f9f9;
-            color: #333;
-        }
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 15px;
-            text-align: center;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            padding: 20px;
-        }
-        h1, h2 {
-            font-weight: normal;
-            margin-top: 0;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        form {
-            display: flex;
-            flex-direction: column;
-        }
-        input[type="text"], input[type="email"], textarea {
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        @media (max-width: 600px) {
-            button {
-                width: 100%;
-            }
-            .container {
-                padding: 10px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>EntroQuiz — AlphaX Solution</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f0e8;--card:#fff;--text:#1a1a2e;--sub:#777;--accent:#e85d26;--accent2:#2563eb;--green:#16a34a;--red:#dc2626;--border:#e2d9cc;--timer-bg:#fff3ee;--opt-hover:#fff7f3;--shadow:0 4px 24px rgba(0,0,0,.09);}
+[data-theme="dark"]{--bg:#0d0d1a;--card:#181828;--text:#f0ece4;--sub:#9ca3af;--accent:#ff7043;--accent2:#60a5fa;--green:#4ade80;--red:#f87171;--border:#2a2a40;--timer-bg:#1a1a30;--opt-hover:#1e1e32;--shadow:0 4px 24px rgba(0,0,0,.4);}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;overflow-x:hidden;}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s;}
+.header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border);background:var(--card);position:sticky;top:0;z-index:100;box-shadow:var(--shadow);}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.15rem;letter-spacing:-.5px;}
+.logo span{color:var(--accent);}
+.theme-btn{background:var(--border);border:none;border-radius:50px;padding:7px 13px;cursor:pointer;font-size:.83rem;font-weight:600;color:var(--text);white-space:nowrap;transition:all .2s;}
+.screen{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:calc(100vh - 57px);padding:20px 16px;}
+.screen.active{display:flex;}
+/* REGISTER */
+.reg-card{background:var(--card);border-radius:20px;padding:28px 20px;width:100%;max-width:480px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.hero-icon{font-size:2.8rem;text-align:center;margin-bottom:10px;}
+.reg-card h1{font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:800;text-align:center;line-height:1.25;margin-bottom:6px;}
+.tagline{color:var(--sub);font-size:.87rem;text-align:center;margin-bottom:22px;line-height:1.55;}
+.form-group{margin-bottom:13px;}
+.form-group label{display:block;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--sub);margin-bottom:5px;}
+.form-group input,.form-group select{width:100%;padding:11px 13px;border-radius:11px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-size:.93rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+.form-group select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23777' d='M6 8L1 3h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent);}
+.err-msg{font-size:.76rem;color:var(--red);margin-top:4px;display:none;}
+.err-msg.show{display:block;}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0;}
+.stat-chip{background:var(--timer-bg);border-radius:11px;padding:11px 6px;text-align:center;border:1px solid var(--border);}
+.stat-chip .num{font-family:'Syne',sans-serif;font-size:1.25rem;font-weight:800;color:var(--accent);}
+.stat-chip .lbl{font-size:.7rem;color:var(--sub);margin-top:2px;}
+.start-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:13px;padding:14px;font-size:.98rem;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(232,93,38,.35);}
+.start-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+/* QUIZ */
+.quiz-wrapper{width:100%;max-width:640px;}
+.quiz-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.q-counter{font-family:'Syne',sans-serif;font-weight:700;font-size:.83rem;color:var(--sub);}
+.unit-badge{background:var(--accent);color:#fff;border-radius:20px;padding:4px 11px;font-size:.72rem;font-weight:700;font-family:'Syne',sans-serif;white-space:nowrap;}
+.progress-wrap{background:var(--border);border-radius:50px;height:6px;margin-bottom:15px;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:50px;transition:width .4s ease;}
+.timer-row{display:flex;justify-content:center;margin-bottom:13px;}
+.timer-ring{position:relative;width:64px;height:64px;}
+.timer-ring svg{transform:rotate(-90deg);}
+.timer-ring circle{fill:none;stroke-width:5;}
+.bg-c{stroke:var(--border);}
+.fg-c{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset 1s linear,stroke .5s;}
+.timer-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;}
+.q-card{background:var(--card);border-radius:16px;padding:20px 16px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:13px;}
+.q-text{font-size:1.05rem;line-height:1.7;font-weight:500;margin-bottom:20px;}
+.options{display:flex;flex-direction:column;gap:9px;}
+.opt-btn{background:var(--bg);border:2px solid var(--border);border-radius:12px;padding:13px 14px;text-align:left;cursor:pointer;font-size:1rem;font-family:'DM Sans',sans-serif;color:var(--text);transition:all .18s;display:flex;align-items:flex-start;gap:12px;width:100%;word-break:break-word;}
+.opt-btn:hover:not(:disabled){background:var(--opt-hover);border-color:var(--accent);}
+.opt-letter{min-width:30px;width:30px;height:30px;border-radius:8px;background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:700;font-size:.8rem;flex-shrink:0;margin-top:1px;transition:all .2s;}
+.opt-text{flex:1;line-height:1.55;font-size:1rem;word-wrap:break-word;overflow-wrap:anywhere;}
+.opt-btn.correct{background:#dcfce7;border-color:var(--green);color:#15803d;}
+.opt-btn.correct .opt-letter{background:var(--green);color:#fff;}
+.opt-btn.wrong{background:#fee2e2;border-color:var(--red);color:#b91c1c;}
+.opt-btn.wrong .opt-letter{background:var(--red);color:#fff;}
+[data-theme="dark"] .opt-btn.correct{background:#052e16;color:#4ade80;}
+[data-theme="dark"] .opt-btn.wrong{background:#2d0a0a;color:#f87171;}
+.hint-box{background:var(--timer-bg);border:1.5px solid var(--accent);border-radius:12px;padding:14px 16px;margin-top:12px;display:none;animation:fadeIn .3s ease;}
+.hint-box.show{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.hint-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:7px;}
+.hint-text{font-size:.97rem;line-height:1.6;color:var(--text);font-weight:600;}
+.hint-loading{color:var(--sub);font-style:italic;font-size:.88rem;font-weight:400;}
+.next-btn{width:100%;background:var(--accent2);color:#fff;border:none;border-radius:13px;padding:13px;font-size:.93rem;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s;display:none;}
+.next-btn.show{display:block;}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,.3);}
+/* RESULTS */
+.result-card{background:var(--card);border-radius:20px;padding:26px 18px;width:100%;max-width:500px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.result-card h2{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;text-align:center;margin-bottom:4px;}
+.result-sub{color:var(--sub);font-size:.86rem;text-align:center;margin-bottom:18px;}
+.score-circle{width:110px;height:110px;border-radius:50%;background:conic-gradient(var(--accent) 0%,var(--border) 0%);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
+.score-inner{width:82px;height:82px;border-radius:50%;background:var(--card);display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-num{font-family:'Syne',sans-serif;font-size:1.45rem;font-weight:800;color:var(--accent);}
+.score-denom{font-size:.7rem;color:var(--sub);}
+.result-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:18px;}
+.r-stat{background:var(--bg);border-radius:11px;padding:11px 5px;text-align:center;border:1px solid var(--border);}
+.r-stat .rn{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800;}
+.r-stat .rl{font-size:.68rem;color:var(--sub);margin-top:2px;}
+.pass{color:var(--green);}.fail{color:var(--red);}
+.section-title{font-family:'Syne',sans-serif;font-weight:700;font-size:.78rem;text-transform:uppercase;letter-spacing:.8px;color:var(--sub);margin-bottom:10px;}
+.unit-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;}
+.unit-label{font-size:.78rem;font-weight:600;min-width:80px;color:var(--text);}
+.unit-bar-wrap{flex:1;background:var(--border);border-radius:50px;height:7px;overflow:hidden;}
+.unit-bar{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .6s ease;}
+.unit-pct{font-family:'Syne',sans-serif;font-size:.75rem;font-weight:700;min-width:30px;text-align:right;color:var(--accent);}
+.report-section{margin-bottom:18px;}
+.email-section{margin-bottom:18px;}
+.email-row{display:flex;gap:8px;}
+.email-input{flex:1;padding:10px 13px;border-radius:11px;border:2px solid var(--border);background:var(--bg);color:var(--text);font-size:.88rem;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s;min-width:0;}
+.email-input:focus{border-color:var(--accent);}
+.send-btn{background:var(--accent);color:#fff;border:none;border-radius:11px;padding:10px 14px;font-size:.83rem;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0;}
+.send-btn:hover{transform:translateY(-1px);}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.email-status{font-size:.8rem;margin-top:6px;padding:8px 11px;border-radius:8px;display:none;line-height:1.4;}
+.email-status.ok{display:block;background:#dcfce7;color:#15803d;border:1px solid #bbf7d0;}
+.email-status.err{display:block;background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;}
+.result-btns{display:flex;gap:10px;margin-bottom:14px;}
+.retry-btn{flex:1;background:var(--accent);color:#fff;border:none;border-radius:13px;padding:12px;font-size:.9rem;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s;}
+.retry-btn:hover{transform:translateY(-2px);}
+.home-btn{flex:1;background:var(--bg);color:var(--text);border:2px solid var(--border);border-radius:13px;padding:12px;font-size:.9rem;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s;}
+.home-btn:hover{border-color:var(--accent);}
+.powered{text-align:center;font-size:.72rem;color:var(--sub);padding:14px 16px 10px;}
+.powered b{color:var(--accent);}
+</style>
 </head>
 <body>
-    <header>
-        <h1>Welcome to the Quiz App</h1>
-    </header>
-    <div class="container">
-        <h2>Take the Quiz!</h2>
-        <form>
-            <input type="text" placeholder="Enter your name" required />
-            <input type="email" placeholder="Enter your email" required />
-            <button type="submit">Start Quiz</button>
-        </form>
-        <div>
-            <!-- Timer Display -->
-            <h3>Time Remaining: <span id="timer">00:00</span></h3>
-            <!-- Result Card Placeholder -->
-            <div id="resultCard" style="display: none;">
-                <h3>Your Results</h3>
-                <p id="score"></p>
-                <button onclick="restartQuiz()">Restart Quiz</button>
-            </div>
-        </div>
-    </div>
-    <script>
-        // Timer Functionality
-        let timeLeft = 60; // seconds
-        const timerElement = document.getElementById('timer');
-        const interval = setInterval(() => {
-            timeLeft--;
-            timerElement.textContent = timeLeft > 0 ? `00:${String(timeLeft).padStart(2, '0')}` : `Time's up!`;
-            if (timeLeft <= 0) {
-                clearInterval(interval);
-                // Handle end of quiz
-            }
-        }, 1000);
+<div class="header">
+  <div class="logo">Entro<span>Quiz</span></div>
+  <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙 Dark</button>
+</div>
 
-        // Restart Quiz Function
-        function restartQuiz() {
-            // Logic to restart the quiz
-            document.getElementById('resultCard').style.display = 'none';
-            timeLeft = 60;
-        }
-    </script>
+<!-- REGISTER -->
+<div class="screen active" id="regScreen">
+  <div class="reg-card">
+    <div class="hero-icon">📚</div>
+    <h1>Entrepreneurship MCQ Quiz</h1>
+    <p class="tagline">Practice all 5 units. AI keyword hints on wrong answers. 60s per question!</p>
+    <div class="form-group">
+      <label>Full Name</label>
+      <input type="text" id="regName" placeholder="Enter your full name" oninput="validateReg()">
+      <div class="err-msg" id="errName">Please enter your name</div>
+    </div>
+    <div class="form-group">
+      <label>Register Number</label>
+      <input type="text" id="regRoll" placeholder="Enter your register number" oninput="validateReg()">
+      <div class="err-msg" id="errRoll">Please enter your register number</div>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="regEmail" placeholder="Enter your email address" oninput="validateReg()">
+      <div class="err-msg" id="errEmail">Please enter a valid email</div>
+    </div>
+
+    <div class="form-group">
+      <label>Select Unit</label>
+      <select id="unitSelect">
+        <option value="all">📖 All Units (149 Questions)</option>
+        <option value="0">Unit 1 — Entrepreneurship Intro (30 Q)</option>
+        <option value="1">Unit 2 — Business Idea (30 Q)</option>
+        <option value="2">Unit 3 — Banking (29 Q)</option>
+        <option value="3">Unit 4 — Pricing & Cost (30 Q)</option>
+        <option value="4">Unit 5 — Business Plan (30 Q)</option>
+      </select>
+    </div>
+    <div class="stats-row">
+      <div class="stat-chip"><div class="num">149</div><div class="lbl">Questions</div></div>
+      <div class="stat-chip"><div class="num">60s</div><div class="lbl">Per Q</div></div>
+      <div class="stat-chip"><div class="num">5</div><div class="lbl">Units</div></div>
+    </div>
+    <button class="start-btn" id="startBtn" onclick="startQuiz()" disabled>🚀 Start Quiz</button>
+  </div>
+  <div class="powered">Developed by <b>AlphaX Solution</b> &nbsp;|&nbsp; TNGPC Madurai</div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="quizScreen">
+  <div class="quiz-wrapper">
+    <div class="quiz-top">
+      <span class="q-counter" id="qCounter">Q 1 / 30</span>
+      <span class="unit-badge" id="unitBadge">Unit 1</span>
+    </div>
+    <div class="progress-wrap"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="timer-row">
+      <div class="timer-ring">
+        <svg width="64" height="64" viewBox="0 0 64 64">
+          <circle class="bg-c" cx="32" cy="32" r="28"/>
+          <circle class="fg-c" id="timerCircle" cx="32" cy="32" r="28" stroke-dasharray="175.9" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-text" id="timerText" style="color:var(--accent);">60</div>
+      </div>
+    </div>
+    <div class="q-card">
+      <div class="q-text" id="qText"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="hint-box" id="hintBox">
+        <div class="hint-title">💡 Memory Shortcut</div>
+        <div class="hint-text" id="hintText"></div>
+      </div>
+    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next Question →</button>
+  </div>
+  <div class="powered">Developed by <b>AlphaX Solution</b></div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="resultScreen">
+  <div class="result-card">
+    <div style="font-size:2.6rem;text-align:center;margin-bottom:8px;" id="resultEmoji">🎉</div>
+    <h2 id="resultTitle">Quiz Complete!</h2>
+    <p class="result-sub" id="resultSub"></p>
+    <div class="score-circle" id="scoreCircle">
+      <div class="score-inner">
+        <div class="score-num" id="scoreNum">0</div>
+        <div class="score-denom" id="scoreDenom">/ 30</div>
+      </div>
+    </div>
+    <div class="result-stats">
+      <div class="r-stat"><div class="rn pass" id="rCorrect">0</div><div class="rl">✅ Right</div></div>
+      <div class="r-stat"><div class="rn fail" id="rWrong">0</div><div class="rl">❌ Wrong</div></div>
+      <div class="r-stat"><div class="rn" id="rSkipped">0</div><div class="rl">⏭ Skip</div></div>
+      <div class="r-stat"><div class="rn" id="rPct">0%</div><div class="rl">Score</div></div>
+    </div>
+    <div class="report-section" id="unitReportSection">
+      <div class="section-title">📊 Unit-wise Progress</div>
+      <div id="unitReportRows"></div>
+    </div>
+    <div class="email-section">
+      <div class="section-title">📧 Email Your Report</div>
+      <div class="email-row">
+        <input class="email-input" type="email" id="reportEmail" placeholder="your@email.com">
+        <button class="send-btn" id="sendEmailBtn" onclick="sendReport()">Send</button>
+      </div>
+      <div class="email-status" id="emailStatus"></div>
+    </div>
+    <div class="result-btns">
+      <button class="retry-btn" onclick="retryQuiz()">🔄 Retry</button>
+      <button class="home-btn" onclick="goHome()">🏠 Home</button>
+    </div>
+  </div>
+  <div class="powered">Developed by <b>AlphaX Solution</b> &nbsp;|&nbsp; TNGPC Madurai</div>
+</div>
+
+<script>
+const ALL_Q=[
+ {u:1,q:"Which statement best explains entrepreneurship?",o:["Managing a government organization","Starting a business only for profit","Creating value by identifying and exploiting opportunities","Working under a fixed salary"],a:2},
+ {u:1,q:"How does entrepreneurship help in economic development?",o:["By generating employment and income","By increasing government jobs","By encouraging imports","By reducing competition"],a:0},
+ {u:1,q:'The statement "Entrepreneurs are born, not made" is a myth because:',o:["Entrepreneurs need no skills","Education and training can develop entrepreneurial skills","Only family businesses succeed","Entrepreneurs do not learn from experience"],a:1},
+ {u:1,q:"Which is a major limitation of entrepreneurship?",o:["Creative freedom","Social recognition","Risk of business failure","Employment generation"],a:2},
+ {u:1,q:"A student identifies a problem and thinks of a product to solve it. This stage is called:",o:["Business planning","Feasibility analysis","Resource mobilization","Idea generation"],a:3},
+ {u:1,q:"Ram prepares a written document containing objectives, marketing strategy, and financial projections. This is known as:",o:["Project report","Business model","Business plan","Vision statement"],a:2},
+ {u:1,q:"A person starts a home-based business with minimal capital. This contradicts which myth?",o:["Entrepreneurs work alone","Entrepreneurs are gamblers","Entrepreneurs are born","Entrepreneurs need huge capital"],a:3},
+ {u:1,q:"An entrepreneur introducing a new eco-friendly product is demonstrating:",o:["Risk avoidance","Innovation","Competition","Business failure"],a:1},
+ {u:1,q:"Which situation represents the process of entrepreneurship rather than an advantage?",o:["Creating jobs","Economic development","Self-employment","Preparing a feasibility report"],a:3},
+ {u:1,q:"If a question mentions GDP growth, innovation, and job creation, it mainly refers to:",o:["Entrepreneurial myths","Entrepreneurial process","Advantages of entrepreneurship","Limitations of entrepreneurship"],a:2},
+ {u:1,q:"Which statement BEST supports entrepreneurship as a tool for national development?",o:["Entrepreneurs face stress","Entrepreneurs have no fixed salary","Entrepreneurs promote innovation and employment","Entrepreneurs work independently"],a:2},
+ {u:1,q:"A person is called an entrepreneur ONLY WHEN they identify an opportunity and organize resources. Which concept is applied?",o:["Entrepreneurial definition","Entrepreneurial process","Entrepreneurial myth","Business ethics"],a:1},
+ {u:1,q:"Correct entrepreneurial sequence: 1.Resource mobilization 2.Idea generation 3.Business launch 4.Feasibility analysis",o:["2→4→1→3","4→2→1→3","2→1→4→3","1→2→4→3"],a:0},
+ {u:1,q:"If an entrepreneur is arranging finance and manpower, they are in the stage of:",o:["Business planning","Feasibility study","Market survey","Resource mobilization"],a:3},
+ {u:1,q:"Entrepreneurial competency refers to:",o:["Academic qualification","Personal and professional abilities of an entrepreneur","Government certification","Company size"],a:1},
+ {u:1,q:"Creativity is important for entrepreneurs because it helps them to:",o:["Copy existing ideas","Avoid competition","Develop innovative solutions","Reduce responsibilities"],a:2},
+ {u:1,q:"Leadership skills are essential for entrepreneurs mainly to:",o:["Avoid teamwork","Control competitors","Guide and motivate employees","Reduce business goals"],a:2},
+ {u:1,q:"Why is ethical behavior important for entrepreneurs?",o:["It reduces creativity","It builds long-term trust and sustainability","It increases short-term profits only","It limits business expansion"],a:1},
+ {u:1,q:"Entrepreneurial values mainly guide an entrepreneur in:",o:["Choosing government jobs","Decision-making and behavior","Avoiding responsibility","Reducing competition"],a:1},
+ {u:1,q:"A positive entrepreneurial attitude helps entrepreneurs to:",o:["Fear failure","Avoid challenges","Depend on others","Persist despite difficulties"],a:3},
+ {u:1,q:"Entrepreneurship and innovation are closely related because entrepreneurs:",o:["Resist new ideas","Only manage resources","Implement innovative ideas for value creation","Avoid technological change"],a:2},
+ {u:1,q:"When an entrepreneur develops a solution to reduce customer inconvenience, it reflects:",o:["Ethical conflict","Problem-solving ability","Routine management","Risk avoidance"],a:1},
+ {u:1,q:"An entrepreneur identified a problem and generated ideas, but hasn't converted them into a product. Which element is missing?",o:["Creativity","Innovation","Risk tolerance","Ethics"],a:1},
+ {u:1,q:"Statement: Ethical entrepreneurship focuses only on profit.",o:["True","False","Both","Cannot be determined"],a:1},
+ {u:1,q:"Which sequence best represents creativity to innovation?",o:["Idea→Risk→Ethics→Market","Problem→Idea→Prototype→Market solution","Market→Idea→Ethics→Risk","Innovation→Creativity→Market"],a:1},
+ {u:1,q:'"Entrepreneurs are gamblers rather than planners." Which option MOST logically rejects this?',o:["Entrepreneurs depend on luck","Entrepreneurs avoid risk","Entrepreneurs take calculated risks after analysis","Entrepreneurs never fail"],a:2},
+ {u:1,q:"Statement: Entrepreneurs take calculated risks, not blind risks.",o:["True","False","Ethical issue","Controversial"],a:0},
+ {u:1,q:"An employee wants to become an entrepreneur but fears uncertainty. Which attitude must be developed?",o:["Risk-taking attitude","Risk avoidance","Job security mindset","Dependency"],a:0},
+ {u:1,q:"A product fails due to rapid tech changes. Which risk materialized?",o:["Market risk","Financial risk","Technological risk","Legal risk"],a:2},
+ {u:1,q:"A student notices long queues at canteens and launches a pre-order app. The entrepreneur is acting as:",o:["Problem solver","Risk avoider","Passive observer","Employee"],a:0},
+ {u:2,q:"A manufacturing business mainly focuses on:",o:["Buying and selling finished goods","Producing goods by converting raw materials","Providing professional services","Acting as an intermediary"],a:1},
+ {u:2,q:"Trading businesses differ from service businesses because trading involves:",o:["Skill-based work","Intangible output","Exchange of goods without transformation","Customer interaction only"],a:2},
+ {u:2,q:"Consumers are considered key stakeholders because they:",o:["Provide raw materials","Finance the business","Determine demand for products","Control competitors"],a:2},
+ {u:2,q:"E-commerce business models mainly operate through:",o:["Physical marketplaces","Direct government channels","Manual supply chains","Digital platforms and online transactions"],a:3},
+ {u:2,q:"Manufacturing businesses always sell products directly to consumers.",o:["True","False","Cannot be determined","Sometimes True, Sometimes False"],a:1},
+ {u:2,q:"Vendors are stakeholders who supply goods or services to a business.",o:["True","False","Cannot be determined","Sometimes True, Sometimes False"],a:0},
+ {u:2,q:"A business buys goods from wholesalers and sells them without alteration. The business type is:",o:["Manufacturing","Service","Social enterprise","Trading"],a:3},
+ {u:2,q:"A company sells products only through its website and mobile app. Which e-commerce model is this?",o:["B2B","C2C","B2C","G2C"],a:2},
+ {u:2,q:"A firm supplies raw materials to multiple businesses but does not sell to end users. The firm is mainly acting as a:",o:["Consumer","Competitor","Vendor","Retailer"],a:2},
+ {u:2,q:"A consumer feels dissatisfied due to delayed delivery. Which stakeholder relationship is affected?",o:["Vendor–Vendor","Seller–Competitor","Manufacturer–Vendor","Business–Consumer"],a:3},
+ {u:2,q:"A small seller feels threatened by a large competitor entering the same market. This reflects concern about:",o:["Competition","Ethics","Innovation","Service quality"],a:0},
+ {u:2,q:"An online platform connects individual sellers and buyers without owning products. Most suitable model is:",o:["B2B","B2C","C2C","D2C"],a:2},
+ {u:2,q:"An e-commerce company relies on vendors for availability and consumers for feedback. Which conclusion is correct?",o:["Only consumers matter","Vendors and consumers are critical stakeholders","Competitors are irrelevant","Stakeholders reduce profitability"],a:1},
+ {u:2,q:"Sellers, vendors, and consumers are collectively known as:",o:["Shareholders","Stakeholders","Regulators","Promoters"],a:1},
+ {u:2,q:"A business has strong customer demand but lacks funding. Which resource is insufficient?",o:["Capital","Human","Market","Vendor"],a:0},
+ {u:2,q:"An entrepreneur wants legal protection for a newly developed product design. The most suitable option is:",o:["Trademark","Copyright","License","Patent"],a:3},
+ {u:2,q:"A business idea shows high creativity but lacks market demand and financial feasibility. This idea should be:",o:["Immediately launched","Ignored permanently","Re-evaluated before conversion into opportunity","Patented immediately"],a:2},
+ {u:2,q:"A firm fails due to poor cash flow, weak customer retention, and lack of innovation. Primary cause of failure is:",o:["Poor internal management","External competition only","Strong vendors","Ethical practices"],a:0},
+ {u:2,q:'Analyse: "A good idea guarantees business success."',o:["Completely true","Completely false","Depends on execution and feasibility","Related only to innovation"],a:2},
+ {u:2,q:"Correct sequence for opportunity evaluation:",o:["Launch→SWOT→Idea→Planning","Idea→SWOT→Feasibility→Launch","Feasibility→Idea→Launch→SWOT","SWOT→Launch→Idea→Feasibility"],a:1},
+ {u:2,q:"A sudden change in government policy affects business operations. This is an example of:",o:["Financial risk","Market risk","Personal risk","Legal risk"],a:3},
+ {u:2,q:"Business idea generation mainly involves:",o:["Copying existing businesses","Identifying problems and possible solutions","Waiting for market demand","Reducing competition"],a:1},
+ {u:2,q:"Copyright protects literary, artistic and musical works.",o:["True","False","Cannot be determined","Sometimes True, Sometimes False"],a:0},
+ {u:2,q:"All business ideas automatically become business opportunities.",o:["True","False","Cannot be determined","Sometimes True, Sometimes False"],a:1},
+ {u:2,q:"SWOT analysis helps entrepreneurs mainly to:",o:["Avoid planning","Identify strengths, weaknesses, opportunities and threats","Eliminate competition","Increase risk"],a:1},
+ {u:2,q:"The primary purpose of setting business goals is to:",o:["Provide direction and focus","Avoid planning","Eliminate risks","Reduce workload"],a:0},
+ {u:2,q:"A patent provides protection to:",o:["Brand names","Literary works","Artistic designs only","Inventions and innovations"],a:3},
+ {u:2,q:"A company maintains long-term contracts with reliable suppliers. This mainly improves:",o:["Customer relations","Vendor management","Patent protection","Market research"],a:1},
+ {u:2,q:"A team lists strengths, weaknesses, opportunities, and threats. Which tool is used?",o:["PESTLE","SWOT analysis","Break-even analysis","Benchmarking"],a:1},
+ {u:2,q:"Machinery and money invested in business are:",o:["Capital resources","Human resources","Market resources","Social resources"],a:0},
+ {u:3,q:"Businesses are classified based on size mainly to:",o:["Increase competition","Decide taxation only","Provide suitable policies and support","Reduce business risk"],a:2},
+ {u:3,q:"A small-scale enterprise is generally characterized by:",o:["Limited capital and workforce","Large capital investment","Global market presence","High automation"],a:0},
+ {u:3,q:"Financial institutions support entrepreneurs mainly by providing:",o:["Raw materials","Skilled labor","Financial assistance and credit","Market competition"],a:2},
+ {u:3,q:"Government policies support entrepreneurship primarily to:",o:["Eliminate private businesses","Encourage economic growth and employment","Increase imports","Reduce innovation"],a:1},
+ {u:3,q:"Entrepreneurial support systems help entrepreneurs by offering:",o:["Only funding","Training, mentoring, and infrastructure","Legal penalties","Market restrictions"],a:1},
+ {u:3,q:"Incentive schemes are introduced by governments mainly to:",o:["Control entrepreneurs","Discourage startups","Increase business failures","Promote new and existing enterprises"],a:3},
+ {u:3,q:"Financial institutions play a role in both startup and expansion stages.",o:["True","False","Cannot be determined","None of the above"],a:0},
+ {u:3,q:"Central government incentive schemes apply only within one state.",o:["True","False","Cannot be determined","None of the above"],a:1},
+ {u:3,q:"A business employs 15 people and has limited capital. It is most likely a:",o:["Large enterprise","Medium enterprise","Small enterprise","Multinational enterprise"],a:2},
+ {u:3,q:"A startup receives subsidized loans and training from a government institution. This support comes under:",o:["Market competition","Entrepreneurial support system","Business risk","Private funding"],a:1},
+ {u:3,q:'"Government incentives alone can guarantee entrepreneurial success." Best analysis?',o:["Completely true","Completely false","Partially true, success also depends on execution","Irrelevant to entrepreneurship"],a:2},
+ {u:3,q:"Which condition is necessary to qualify as a small-scale enterprise?",o:["Unlimited capital investment","Defined capital and employee limits","Global operations","Government ownership"],a:1},
+ {u:3,q:"A startup receives loan subsidy, skill training, and working capital from different institutions. Entrepreneurship is supported through:",o:["Only government policies","Only financial institutions","Market competition","Multiple support systems"],a:3},
+ {u:3,q:"Micro enterprises are generally characterized by:",o:["Very high capital investment","Limited investment and workforce","International operations","Government ownership"],a:1},
+ {u:3,q:"Capital-based classification of enterprises mainly helps the government to:",o:["Control prices","Frame suitable support schemes","Reduce competition","Eliminate private sector"],a:1},
+ {u:3,q:"Entrepreneurial support systems are designed mainly to reduce:",o:["Entry barriers for startups","Innovation","Employment","Government spending"],a:0},
+ {u:3,q:"Incentive schemes are usually provided in the form of:",o:["Penalties","Subsidies, tax benefits, and grants","Market restrictions","Legal obligations"],a:1},
+ {u:3,q:"An entrepreneur applies for training, mentoring, and seed funding from a startup incubator. This support comes under:",o:["Market forces","Entrepreneurial support system","Business competition","Financial risk"],a:1},
+ {u:3,q:"An enterprise with high capital, vast employees and global market is best classified as:",o:["Micro","Small","Medium","Large"],a:3},
+ {u:3,q:"A first-time entrepreneur feels encouraged after attending government-sponsored training. This reflects the role of:",o:["Competitors","Support systems","Market demand","Capital shortage"],a:1},
+ {u:3,q:'"Financial institutions are more important than government policies for entrepreneurial growth." Best analysis?',o:["Fully true","Fully false","Both are complementary","Not related to entrepreneurship"],a:2},
+ {u:3,q:"Which condition must be satisfied to receive MSME incentives?",o:["Foreign ownership","Registration under MSME norms","International operations","Monopoly status"],a:1},
+ {u:3,q:"A rural entrepreneur receives training and subsidy from state government. This mainly promotes:",o:["Regional development","Monopoly","Import dependence","Tax evasion"],a:0},
+ {u:3,q:"Central government schemes differ from state schemes because they:",o:["Apply only to one district","Are uniform across the country","Support only large enterprises","Exclude startups"],a:1},
+ {u:3,q:"A startup in Tamil Nadu receives land subsidy and power tariff concessions. These are most likely from:",o:["State government","Central government","Foreign agencies","Private investors"],a:0},
+ {u:3,q:"A small enterprise grows due to capital subsidies and central tax benefits. Most appropriate conclusion?",o:["Only state incentives matter","Only central incentives matter","Combined incentives support enterprise growth","Incentives reduce innovation"],a:2},
+ {u:3,q:"Incubation centres mainly provide:",o:["Free land","Workspace, mentoring and business support","Only finance","Only legal advice"],a:1},
+ {u:3,q:"A startup needs working capital for daily operations. Which institution is most suitable?",o:["Commercial bank","Tourism department","Pollution control board","Transport office"],a:0},
+ {u:3,q:"A government policy reducing GST rates for small businesses will mainly help in:",o:["Increasing tax burden","Reducing cost of doing business","Increasing paperwork","Closing enterprises"],a:1},
+ {u:4,q:"Which of the following is a fixed cost?",o:["Raw material","Sales commission","Factory rent","Packaging cost"],a:2},
+ {u:4,q:"Rent and insurance are variable costs.",o:["True","False","Cannot be determined","None of the above"],a:1},
+ {u:4,q:"Break-even analysis is used to estimate profit only.",o:["True","False","Cannot be determined","None of the above"],a:1},
+ {u:4,q:"Selling price=₹100, Variable cost=₹60, Fixed cost=₹20,000. Calculate Break-even units.",o:["200","400","500","1,000"],a:2},
+ {u:4,q:"A bakery earns ₹80,000 from sales and spends ₹65,000 on expenses. What is the cash flow position?",o:["Cash deficit","Cash neutral","Cash surplus","Business loss"],a:2},
+ {u:4,q:"A company has high fixed costs and low variable costs. Sales drop suddenly. Major financial risk?",o:["Higher break-even point","Lower operating cost","Higher profitability","Reduced revenue variability"],a:0},
+ {u:4,q:"A business will break even only if:",o:["Selling price > Variable cost","Fixed cost = Variable cost","Total revenue = Total cost","Profit = Loss"],a:2},
+ {u:4,q:"Which situation leads to negative cash flow?",o:["High profit with delayed customer payments","Low sales with cash receipts","High inventory turnover","Low operating cost"],a:0},
+ {u:4,q:"The main purpose of an income statement is to show:",o:["Profit or loss of a business","Cash position","Assets and liabilities","Capital invested"],a:0},
+ {u:4,q:"Cash flow projection helps an entrepreneur to:",o:["Increase profit","Estimate future cash movements","Reduce tax liability","Increase sales"],a:1},
+ {u:4,q:"GST is best described as:",o:["Direct tax","State tax only","Wealth tax","Indirect tax on supply of goods and services"],a:3},
+ {u:4,q:"Cash inflow=₹1,50,000 and Cash outflow=₹1,80,000. What is the projected cash position?",o:["Cash surplus","Break-even","Cash deficit","Profit"],a:2},
+ {u:4,q:"A business fixes prices without considering competitors and demand. Likely result?",o:["Stable profit","Market expansion","Lower costs","Loss of customers"],a:3},
+ {u:4,q:'"Higher price always means higher profit." Best analysis?',o:["Always true","Always false","Depends on demand and cost","Depends only on GST"],a:2},
+ {u:4,q:"Which factor most affects pricing in a highly competitive market?",o:["Owner's preference","Competitor pricing","Business location","Cash flow"],a:1},
+ {u:4,q:"Cash flow projection mainly focuses on:",o:["Profitability","Liquidity","Market share","Brand value"],a:1},
+ {u:4,q:"Cost per unit=₹200 and Desired profit=25% on cost. Determine the selling price.",o:["₹225","₹240","₹250","₹260"],a:2},
+ {u:4,q:"Which cost remains unchanged even if production is zero?",o:["Variable cost","Fixed cost","Operating cost","Marginal cost"],a:1},
+ {u:4,q:"Sales ₹2,00,000 and Expenses ₹1,80,000. But customers delay payments. What problem?",o:["Cash flow issue","Loss","High fixed cost","Break-even failure"],a:0},
+ {u:4,q:"A business has low fixed costs but very high variable costs. What happens as sales increase?",o:["Profit rises sharply","Profit rises slowly","Loss increases","Break-even never occurs"],a:1},
+ {u:4,q:"GST charged on sales is collected by the business and paid to:",o:["Customers","Government","Suppliers","Employees"],a:1},
+ {u:4,q:"A business wants to know whether increasing production will increase profit. Most useful tool?",o:["Break-even analysis","Balance sheet","GST return","Cash book"],a:0},
+ {u:4,q:"Increase in raw material prices will most likely lead to:",o:["Decrease in selling price","Increase in per unit cost","Decrease in variable cost","Decrease in fixed cost"],a:1},
+ {u:4,q:"A firm notices profit in income statement but faces cash shortage. Highlights importance of:",o:["Cash flow projection","Pricing policy","GST calculation","Break-even chart"],a:0},
+ {u:4,q:"Factors affecting pricing include:",o:["Cost, demand, competition","Colour of product","Employee age","Office location only"],a:0},
+ {u:4,q:"The main purpose of break-even analysis is to:",o:["Find the sales volume needed to avoid loss","Calculate tax liability","Find market share","Estimate employee salary"],a:0},
+ {u:4,q:"Income Statement is also known as:",o:["Balance Sheet","Profit and Loss Statement","Cash Book","Ledger"],a:1},
+ {u:4,q:"A startup prepares an income statement and cash flow projection before launch. This is part of:",o:["Financial business case study","Marketing strategy","Branding","Promotion strategy"],a:0},
+ {u:4,q:"A firm sells 300 units but break-even is 400 units. The firm is:",o:["Making profit","At no profit no loss","Making loss","Highly profitable"],a:2},
+ {u:4,q:"A business receives ₹1,00,000 as bank loan. This is treated as:",o:["Cash inflow","Cash outflow","Expense","Loss"],a:0},
+ {u:5,q:"Technical feasibility mainly examines:",o:["Market demand","Availability of technology and resources","Profitability","Legal compliance"],a:1},
+ {u:5,q:"Market research is the process of:",o:["Selling products","Collecting and analyzing market data","Advertising goods","Setting prices"],a:1},
+ {u:5,q:"Market sensing refers to:",o:["Monitoring market changes continuously","Launching a product","Fixing prices","Advertising products"],a:0},
+ {u:5,q:"Sales strategy and marketing strategy mean the same.",o:["True","False","Cannot be determined","None of the above"],a:1},
+ {u:5,q:"A feasibility report shows high initial investment but low operating cost. Which analysis best explains this?",o:["Market analysis","Technical analysis","Financial analysis","Sales analysis"],a:2},
+ {u:5,q:"A firm launches a product in a small city before national launch. This is an example of:",o:["Market sensing","Market segmentation","Sales promotion","Test marketing"],a:3},
+ {u:5,q:"Correct sequence in market research process:",o:["Data analysis→Problem identification→Data collection","Problem identification→Data collection→Data analysis","Data collection→Product launch→Data analysis","Advertising→Data analysis→Pricing"],a:1},
+ {u:5,q:"A firm ignores market research and launches based on assumptions. Most likely outcome?",o:["Guaranteed success","Reduced cost","High market risk","Increased brand loyalty"],a:2},
+ {u:5,q:"A company focuses on digital promotion and direct customer interaction. Which strategy is emphasized?",o:["Cost leadership","Relationship marketing","Mass marketing","Skimming strategy"],a:1},
+ {u:5,q:"Digital marketing mainly uses:",o:["Online platforms","Print media","Outdoor advertising","Telecalling only"],a:0},
+ {u:5,q:"A business logo primarily helps in:",o:["Cost reduction","Brand recognition","Profit calculation","Legal compliance"],a:1},
+ {u:5,q:"A tagline is best described as:",o:["Company address","Product price","Short phrase representing brand promise","Business objective"],a:2},
+ {u:5,q:"A business plan is a document that:",o:["Records daily transactions","Outlines business goals and strategies","Lists only expenses","Shows tax details"],a:1},
+ {u:5,q:"Branding is relevant only for large companies.",o:["True","False","Cannot be determined","None of the above"],a:1},
+ {u:5,q:"A startup promotes products using Instagram reels and Google ads. Which approach is used?",o:["Digital marketing","Traditional marketing","Direct marketing","Personal selling"],a:0},
+ {u:5,q:"A company offers discounts and free samples during product launch. Which promotion objective is targeted?",o:["Cost reduction","Trial generation","Employee motivation","Profit maximization"],a:1},
+ {u:5,q:"A startup invests heavily in digital ads but has weak brand identity. Most likely outcome?",o:["Strong customer loyalty","Reduced promotion cost","Short-term attention but weak recall","Guaranteed sales growth"],a:2},
+ {u:5,q:"During execution, actual sales are lower than projected. What should the entrepreneur do first?",o:["Close the business","Review assumptions and strategies","Increase fixed costs","Ignore the plan"],a:1},
+ {u:5,q:"A business plan helps entrepreneurs mainly by:",o:["Providing clarity of goals and actions","Reducing taxes","Guaranteeing profit","Avoiding competition"],a:0},
+ {u:5,q:'A firm offers "Buy 1 Get 1" during launch week. Which promotion goal is targeted?',o:["Long-term loyalty","Trial and quick adoption","Cost control","Channel expansion"],a:1},
+ {u:5,q:'Analyze: "Marketing strategy matters more than product quality."',o:["Completely true","Completely false","Both matter; weak quality limits long-term success","Depends only on budget"],a:2},
+ {u:5,q:"During execution, actual costs exceed plan and conversions are low. What should be done first?",o:["Increase expenses on advertisement","Pause execution","Review assumptions, targeting, and creatives","Change brand name"],a:2},
+ {u:5,q:'Analyse: "A catchy logo alone can build a strong brand."',o:["Completely true","Completely false","Depends only on budget","Logo helps, but consistency and value delivery matter"],a:3},
+ {u:5,q:"A new business selects a simple, memorable name and unique logo. This mainly supports:",o:["Cost control","Brand recall","Legal compliance","Tax benefit"],a:1},
+ {u:5,q:"The primary objective of market research is to:",o:["Reduce production cost","Support better business decisions","Increase employee salary","Improve office design"],a:1},
+ {u:5,q:"A startup continuously updates its marketing strategy based on online analytics. This reflects:",o:["Static planning","Dynamic market sensing and testing","Fixed promotion plan","Ignoring feedback"],a:1},
+ {u:5,q:"A feasibility report shows high demand but low profitability. Best decision?",o:["Modify cost structure or pricing before launch","Launch immediately","Ignore financial feasibility","Increase promotion only"],a:0},
+ {u:5,q:"A feasibility report is prepared mainly:",o:["After business failure","Before launching a new business or project","Only for banks","Only for legal compliance"],a:1},
+ {u:5,q:"Financial feasibility mainly evaluates:",o:["Market trends","Customer satisfaction","Branding effectiveness","Cost, revenue and profitability of a project"],a:3},
+ {u:5,q:"The main purpose of market testing is to:",o:["Fix final product price","Eliminate competitors","Finalize brand name","Validate assumptions in real market conditions"],a:3},
+];
+
+let questions=[],current=0,score=0,wrong=0,skipped=0,answered=false;
+let timerInt=null,timeLeft=60;
+let unitStats={1:{c:0,t:0},2:{c:0,t:0},3:{c:0,t:0},4:{c:0,t:0},5:{c:0,t:0}};
+let userInfo={name:'',roll:'',email:'',dept:''};
+
+function g(id){return document.getElementById(id);}
+function validateReg(){
+  const n=g('regName').value.trim(),r=g('regRoll').value.trim(),
+        e=g('regEmail').value.trim();
+  const eOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  toggle('errName',!n);toggle('errRoll',!r);
+  toggle('errEmail',e.length>0&&!eOk);
+  g('startBtn').disabled=!(n&&r&&eOk);
+}
+function toggle(id,show){g(id).classList.toggle('show',show);}
+
+function startQuiz(){
+  userInfo={name:g('regName').value.trim(),roll:g('regRoll').value.trim(),
+            email:g('regEmail').value.trim(),dept:''};
+  const sel=g('unitSelect').value;
+  const pool=sel==='all'?[...ALL_Q]:ALL_Q.filter(q=>q.u===parseInt(sel)+1);
+  questions=pool.sort(()=>Math.random()-.5);
+  current=0;score=0;wrong=0;skipped=0;
+  unitStats={1:{c:0,t:0},2:{c:0,t:0},3:{c:0,t:0},4:{c:0,t:0},5:{c:0,t:0}};
+  showScreen('quizScreen');loadQ();
+}
+
+const UN={1:"Unit 1",2:"Unit 2",3:"Unit 3",4:"Unit 4",5:"Unit 5"};
+
+function loadQ(){
+  answered=false;
+  const q=questions[current];
+  g('qCounter').textContent=`Q ${current+1} / ${questions.length}`;
+  g('unitBadge').textContent=UN[q.u];
+  g('progressFill').style.width=`${(current/questions.length)*100}%`;
+  g('qText').textContent=q.q;
+  g('hintBox').classList.remove('show');
+  g('hintText').textContent='';
+  g('nextBtn').classList.remove('show');
+  const L=['A','B','C','D'];
+  const c=g('optionsContainer');c.innerHTML='';
+  q.o.forEach((opt,i)=>{
+    const b=document.createElement('button');
+    b.className='opt-btn';
+    b.innerHTML=`<span class="opt-letter">${L[i]}</span><span class="opt-text">${opt}</span>`;
+    b.onclick=()=>pick(i);
+    c.appendChild(b);
+  });
+  startTimer();
+}
+
+function startTimer(){
+  clearInterval(timerInt);timeLeft=60;updTimer(60);
+  timerInt=setInterval(()=>{timeLeft--;updTimer(timeLeft);if(timeLeft<=0){clearInterval(timerInt);autoSkip();}},1000);
+}
+function updTimer(t){
+  const ci=g('timerCircle'),tx=g('timerText');
+  ci.style.strokeDashoffset=175.9*(1-t/60);
+  tx.textContent=t;
+  const col=t>30?'var(--accent)':t>15?'#f59e0b':'var(--red)';
+  ci.style.stroke=col;tx.style.color=col;
+}
+function autoSkip(){
+  if(answered)return;answered=true;skipped++;
+  const q=questions[current];unitStats[q.u].t++;
+  document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true);
+  document.querySelectorAll('.opt-btn')[q.a].classList.add('correct');
+  g('hintBox').classList.add('show');
+  g('hintText').innerHTML='<span class="hint-loading">⏰ Time\'s up! Note this answer.</span>';
+  g('nextBtn').classList.add('show');
+}
+function pick(idx){
+  if(answered)return;answered=true;clearInterval(timerInt);
+  const q=questions[current];unitStats[q.u].t++;
+  const btns=document.querySelectorAll('.opt-btn');
+  btns.forEach(b=>b.disabled=true);
+  if(idx===q.a){
+    btns[idx].classList.add('correct');score++;unitStats[q.u].c++;
+    g('nextBtn').classList.add('show');
+  } else {
+    btns[idx].classList.add('wrong');btns[q.a].classList.add('correct');wrong++;
+    g('hintBox').classList.add('show');
+    g('hintText').innerHTML='<span class="hint-loading">🤖 Generating keyword trick...</span>';
+    g('nextBtn').classList.add('show');
+    genHint(q,idx);
+  }
+}
+
+async function genHint(q,wi){
+  // Build a smart context-aware fallback FIRST (does not reveal full answer text)
+  const ans=q.o[q.a];
+  const topic=q.q.split(' ').slice(0,5).join(' ');
+  const firstWord=ans.split(' ')[0].toUpperCase();
+  const smartFallbacks={
+    'True':'TRUE statements → usually about established facts',
+    'False':'FALSE statements → usually about myths or wrong claims',
+    'Innovation':'INNOVATION = turning ideas into real products/solutions',
+    'Idea':'IDEA generation = first step, spotting the problem',
+    'Risk':'RISK = uncertainty; calculated risk = research first',
+    'Feasibility':'FEASIBILITY = check viability before launch',
+    'SWOT':'SWOT = Strengths, Weaknesses, Opportunities, Threats',
+    'Patent':'PATENT = protects inventions & new products',
+    'Copyright':'COPYRIGHT = protects creative works (books, art, music)',
+    'Break-even':'BREAK-EVEN = Total Revenue = Total Cost (zero profit/loss)',
+    'Cash':'CASH flow = money IN minus money OUT (liquidity)',
+    'Fixed':'FIXED cost = stays same regardless of production',
+    'Variable':'VARIABLE cost = changes with production volume',
+    'GST':'GST = indirect tax on goods & services → paid to govt',
+    'Profit':'PROFIT = Revenue - Total Cost (income statement)',
+    'Business':'BUSINESS plan = written document: goals + strategies',
+    'Market':'MARKET research = collect & analyze data → better decisions',
+    'Digital':'DIGITAL marketing = online platforms (social, search, email)',
+    'Brand':'BRAND = logo + tagline + consistency = recognition',
+    'Vendor':'VENDOR = supplier who provides goods/services to business',
+    'Stakeholder':'STAKEHOLDERS = sellers + vendors + consumers together',
+    'Small':'SMALL enterprise = limited capital + limited workforce',
+    'Micro':'MICRO enterprise = smallest scale, very limited investment',
+    'Large':'LARGE enterprise = high capital + many employees + global',
+    'Support':'SUPPORT system = training + mentoring + infrastructure',
+    'Incubation':'INCUBATOR = workspace + mentoring + business support',
+    'Resource':'RESOURCE mobilization = arranging finance & manpower',
+    'Entrepreneurial':'ENTREPRENEURSHIP = identify opportunity + organize resources',
+    'Leadership':'LEADERSHIP = guide and motivate employees',
+    'Creativity':'CREATIVITY = developing innovative solutions to problems',
+  };
+  let fallbackHint='🔑 ';
+  for(const[k,v]of Object.entries(smartFallbacks)){
+    if(ans.toLowerCase().includes(k.toLowerCase())||q.q.toLowerCase().includes(k.toLowerCase())){
+      fallbackHint+= v; break;
+    }
+  }
+  if(fallbackHint==='🔑 ') fallbackHint+=`${ans.split(' ').slice(0,3).join(' ').toUpperCase()} → key concept for this topic`;
+
+  try{
+    const res=await fetch("https://api.anthropic.com/v1/messages",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({
+        model:"claude-sonnet-4-20250514",
+        max_tokens:60,
+        system:`You make exam keyword memory tricks for entrepreneurship students. 
+STRICT FORMAT: KEYWORD → short meaning (max 8 words total)
+EXAMPLES:
+BREAK-EVEN → Revenue equals Cost, zero profit
+PATENT → protects inventions and innovations
+SWOT → Strengths Weaknesses Opportunities Threats
+OUTPUT: Only the trick. No quotes. No explanation. One line only.`,
+        messages:[{role:"user",content:`Correct answer: ${ans}\nTopic: ${topic}`}]
+      })
+    });
+    const d=await res.json();
+    const raw=(d?.content?.[0]?.text||'').trim();
+    if(raw&&raw.length>3&&raw.length<120){
+      // Take only the first line, must contain → or be short
+      const lines=raw.split('\n').filter(l=>l.trim().length>2);
+      const best=lines.find(l=>l.includes('→'))||lines[0]||raw;
+      g('hintText').textContent='🔑 '+best.trim().replace(/^["']|["']$/g,'');
+    } else {
+      g('hintText').textContent=fallbackHint;
+    }
+  }catch(e){
+    g('hintText').textContent=fallbackHint;
+  }
+}
+
+function nextQuestion(){current++;current>=questions.length?showResults():loadQ();}
+
+function showResults(){
+  clearInterval(timerInt);showScreen('resultScreen');
+  const total=questions.length,pct=Math.round((score/total)*100),pass=pct>=50;
+  g('resultEmoji').textContent=pct>=80?'🏆':pct>=60?'😊':pct>=40?'😐':'😔';
+  g('resultTitle').textContent=pass?`Well Done, ${userInfo.name}!`:'Keep Practicing!';
+  g('resultSub').textContent=`${userInfo.roll} | ${pass?`Passed with ${pct}%!`:`Scored ${pct}% — retry!`}`;
+  g('scoreNum').textContent=score;g('scoreDenom').textContent=`/ ${total}`;
+  g('rCorrect').textContent=score;g('rWrong').textContent=wrong;
+  g('rSkipped').textContent=skipped;
+  g('rPct').textContent=pct+'%';g('rPct').className='rn '+(pass?'pass':'fail');
+  const deg=Math.round(pct*3.6);
+  g('scoreCircle').style.background=`conic-gradient(var(--accent) ${deg}deg, var(--border) ${deg}deg)`;
+  const uNames={1:'U1 Intro',2:'U2 Business',3:'U3 Banking',4:'U4 Pricing',5:'U5 Plan'};
+  const rows=g('unitReportRows');rows.innerHTML='';
+  [1,2,3,4,5].forEach(u=>{
+    const s=unitStats[u];if(!s.t)return;
+    const p=Math.round((s.c/s.t)*100);
+    rows.innerHTML+=`<div class="unit-row"><span class="unit-label">${uNames[u]}</span><div class="unit-bar-wrap"><div class="unit-bar" style="width:${p}%"></div></div><span class="unit-pct">${p}%</span></div>`;
+  });
+  g('reportEmail').value=userInfo.email;
+}
+
+async function sendReport(){
+  const email=g('reportEmail').value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){setEmailStatus('Please enter a valid email.','err');return;}
+  const btn=g('sendEmailBtn');btn.disabled=true;btn.textContent='Opening...';
+  const total=questions.length,pct=Math.round((score/total)*100),pass=pct>=50;
+  const grade=pct>=80?'A (Excellent)':pct>=70?'B (Good)':pct>=60?'C (Average)':pct>=50?'D (Pass)':'F (Fail)';
+  const uNames={1:'Unit 1 — Entrepreneurship Intro',2:'Unit 2 — Business Idea',3:'Unit 3 — Banking & Support',4:'Unit 4 — Pricing & Cost Analysis',5:'Unit 5 — Business Plan'};
+  let breakdown='';
+  [1,2,3,4,5].forEach(u=>{
+    const s=unitStats[u];
+    if(s.t>0){
+      const up=Math.round((s.c/s.t)*100);
+      const bar='█'.repeat(Math.round(up/10))+'░'.repeat(10-Math.round(up/10));
+      breakdown+=`  ${uNames[u]}\n  ${bar} ${up}% (${s.c}/${s.t} correct)\n\n`;
+    }
+  });
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
+  const timeStr=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+
+  const subject=`📊 EntroQuiz Report — ${userInfo.name} | ${pct}% | ${pass?'PASS':'FAIL'}`;
+  const body=
+`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   📚 ENTROQUIZ PERFORMANCE REPORT
+   Entrepreneurship MCQ Practice
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👤 STUDENT DETAILS
+──────────────────
+Name         : ${userInfo.name}
+Register No  : ${userInfo.roll}
+Date & Time  : ${dateStr}, ${timeStr}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 OVERALL PERFORMANCE
+───────────────────────
+Total Questions : ${total}
+Score           : ${score} / ${total}
+Percentage      : ${pct}%
+Grade           : ${grade}
+Result          : ${pass?'✅  PASS':'❌  FAIL'}
+
+Correct Answers : ${score}
+Wrong Answers   : ${wrong}
+Skipped (Timeout): ${skipped}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📈 UNIT-WISE PROGRESS
+──────────────────────
+${breakdown}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 PERFORMANCE INSIGHT
+───────────────────────
+${pct>=80?'Outstanding! You have mastered the subject. Keep it up!':pct>=60?'Good performance! Review the weaker units and you will ace it.':pct>=40?'Fair attempt. Focus on re-reading units with low scores.':'More practice needed. Go unit by unit and retry each section.'}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Developed by AlphaX Solution
+Tamilnadu Government Polytechnic College, Madurai
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+
+  window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,'_blank');
+  setEmailStatus('📧 Email app opened! Tap Send to share your report.','ok');
+  btn.disabled=false;btn.textContent='Send';
+}
+function setEmailStatus(msg,type){const el=g('emailStatus');el.textContent=msg;el.className='email-status '+type;}
+
+function retryQuiz(){startQuiz();}
+function goHome(){clearInterval(timerInt);showScreen('regScreen');}
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  g(id).classList.add('active');window.scrollTo(0,0);
+}
+function toggleTheme(){
+  const dark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.documentElement.setAttribute('data-theme',dark?'light':'dark');
+  g('themeBtn').textContent=dark?'🌙 Dark':'☀️ Light';
+}
+</script>
 </body>
 </html>
