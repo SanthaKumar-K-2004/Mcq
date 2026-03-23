@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            font-weight: normal;
+            margin-top: 0;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input[type="text"], input[type="email"], textarea {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        @media (max-width: 600px) {
+            button {
+                width: 100%;
+            }
+            .container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Welcome to the Quiz App</h1>
+    </header>
+    <div class="container">
+        <h2>Take the Quiz!</h2>
+        <form>
+            <input type="text" placeholder="Enter your name" required />
+            <input type="email" placeholder="Enter your email" required />
+            <button type="submit">Start Quiz</button>
+        </form>
+        <div>
+            <!-- Timer Display -->
+            <h3>Time Remaining: <span id="timer">00:00</span></h3>
+            <!-- Result Card Placeholder -->
+            <div id="resultCard" style="display: none;">
+                <h3>Your Results</h3>
+                <p id="score"></p>
+                <button onclick="restartQuiz()">Restart Quiz</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Timer Functionality
+        let timeLeft = 60; // seconds
+        const timerElement = document.getElementById('timer');
+        const interval = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft > 0 ? `00:${String(timeLeft).padStart(2, '0')}` : `Time's up!`;
+            if (timeLeft <= 0) {
+                clearInterval(interval);
+                // Handle end of quiz
+            }
+        }, 1000);
+
+        // Restart Quiz Function
+        function restartQuiz() {
+            // Logic to restart the quiz
+            document.getElementById('resultCard').style.display = 'none';
+            timeLeft = 60;
+        }
+    </script>
+</body>
+</html>
